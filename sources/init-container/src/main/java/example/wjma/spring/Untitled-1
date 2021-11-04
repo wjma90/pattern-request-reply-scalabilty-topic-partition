@@ -1,0 +1,22 @@
+time curl -i -k -X POST "https://internal.prod.b89.internal/api/v1/conciliations" \
+   -H "Content-Type: application/json" -d '{
+        "conciliationType": 1,
+        "offset": 2999,
+        "limit": 3000
+    }'
+sleep 6000
+
+time curl -i -k -X POST "https://internal.prod.b89.internal/api/v1/conciliations" \
+   -H "Content-Type: application/json" -d '{
+        "conciliationType": 1,
+        "offset": 5999,
+        "limit": 3000
+    }'
+sleep 6000
+
+time curl -i -k -X POST "https://internal.prod.b89.internal/api/v1/conciliations" \
+   -H "Content-Type: application/json" -d '{
+        "conciliationType": 1,
+        "offset": 8999,
+        "limit": 3000
+    }'

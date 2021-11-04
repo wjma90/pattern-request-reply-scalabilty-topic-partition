@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mysql
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: mysql
+  serviceName: mysql
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: mysql
+        version: v1
+    spec:
+      containers:
+      - name: mysql
+        image: wjma90/simple-bd:latest
+        args: ["--default-authentication-plugin=mysql_native_password","--character-set-server=utf8","--collation-server=utf8_general_ci"]
+        env:
+        - name: MYSQL_ALLOW_EMPTY_PASSWORD
+          value: "1"
+        - name: MYSQL_ROOT_PASSWORD
+          value: demo
+        - name: MYSQL_DATABASE
+          value: demo
+        - name: MYSQL_ROOT_HOST
+          value: "%"
+---
+# Headless service for stable DNS entries of StatefulSet members.
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql
+  namespace: default
+  labels:
+    app: mysql
+spec:
+  ports:
+  - name: mysql
+    port: 3306
+  clusterIP: None
+  selector:
+    app: mysql
+---
+# Client service for connecting to any MySQL instance for reads.
+# For writes, you must instead connect to the primary: mysql-0.mysql.
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-read
+  namespace: default
+  labels:
+    app: mysql
+spec:
+  ports:
+  - name: mysql
+    port: 3306
+  selector:
+    app: mysql

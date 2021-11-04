@@ -1,0 +1,47 @@
+server:
+  port: 8080
+
+spring:
+  # mvc:
+  #   dispatch-options-request: true
+  # devtools:
+  #   livereload:
+  #     enabled: true
+  #   restart:
+  #     enabled: true
+
+  application:
+    name: ${application_name:api-rest}
+
+  kafka:
+    bootstrap-servers: ${kafka_brokers:localhost:9092}
+    listener:
+      concurrency: 1
+    consumer:
+      group-id: ${kafka_group_id:api-demo}
+      auto-offset-reset: latest
+      key-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      reply-topic: ${kafka_reply_topic:db_ms_demo.v1.response}
+      properties:
+        spring.json.trusted.packages: "*"
+        spring.deserializer.key.delegate.class: org.apache.kafka.common.serialization.StringDeserializer
+        spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JsonDeserializer
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      acks: 1
+      request-topic: ${kafka_request_topic:db_ms_demo.v1.request}
+      error-topic: ${kafka_error_topic:db_ms_demo.v1.error}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+logging:
+  level:
+    root: INFO
+    org.springframework.transaction: INFO
+    org.springframework.kafka: INFO

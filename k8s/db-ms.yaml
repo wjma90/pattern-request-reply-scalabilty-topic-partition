@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: db-ms
+spec:
+  selector:
+    matchLabels:
+      app: db-ms
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: db-ms
+        version: v1
+    spec:
+      containers:
+      - name: main
+        image: wjma90/simple-db-ms:latest
+        imagePullPolicy: Always
+        env:
+        - name: application_name
+          value: "db-ms-demo"
+        - name: mysql_host
+          value: "mysql-read"
+        - name: mysql_database
+          value: demobd
+        - name: kafka_brokers
+          value: "kafka1.default:19092"
+        - name: kafka_group_id
+          value: "db-ms-demo"
+        - name: kafka_request_topic
+          value: "db_ms_demo.v1.request"
+        - name: kafka_reply_topic
+          value: "db_ms_demo.v1.response"
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name

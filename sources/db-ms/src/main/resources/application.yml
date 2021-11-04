@@ -1,0 +1,52 @@
+spring:
+  devtools:
+    livereload:
+      enabled: true
+    restart:
+      enabled: true
+  application:
+    name: ${application_name:db-ms-demo}
+    
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL5Dialect
+        enable_lazy_load_no_trans: true
+    hibernate:
+      ddl-auto: none
+  datasource:
+    url: jdbc:mysql://${mysql_host:localhost}:${mysql_port:3306}/${mysql_database:demo}?useUnicode=true&characterEncoding=utf8&useSSL=false&requireSSL=false
+    username: ${mysql_user:root}
+    password: ${mysql_pass:demo}
+
+  kafka:
+    bootstrap-servers: ${kafka_brokers:localhost:9092}
+    listener:
+      concurrency: 1
+    consumer:
+      group-id: ${kafka_group_id:db-ms-demo}
+      auto-offset-reset: latest
+      key-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      request-topic: ${kafka_request_topic:db_ms_demo.v1.request}
+      properties:
+        spring.json.trusted.packages: "*"
+        spring.deserializer.key.delegate.class: org.apache.kafka.common.serialization.StringDeserializer
+        spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JsonDeserializer
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      reply-topic: ${kafka_reply_topic:db_ms_demo.v1.response}
+      acks: 1
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+
+logging:
+  level:
+    root: INFO
+    org.springframework.transaction: INFO
+    org.springframework.kafka: INFO
